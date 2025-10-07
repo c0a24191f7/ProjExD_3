@@ -110,6 +110,19 @@ class Score:
         screen.blit(self.img, self.rct)
 
 
+class Explosion:
+    def __init__(self, obj: "Bomb"):
+        self.img = pg.image.load("fig/explosion.gif")
+        self.rct = self.img.get_rect()
+        self.rct.center = obj.rct.center
+        self.life = 100
+
+    def update(self, screen: pg.Surface):
+        self.life -= 1
+        if self.life > 0:
+            screen.blit(self.img, self.rct)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -117,8 +130,8 @@ def main():
     bird = Bird((300, 200))
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
 
-    # 複数ビーム機能の追加
     beams = []
+    explosions = []
 
     score = Score()
 
@@ -129,20 +142,18 @@ def main():
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                # スペースキー押下でBeamインスタンスをbeamsリストに追加
                 beams.append(Beam(bird))
 
         screen.blit(bg_img, [0, 0])
 
-        # ビームと爆弾の衝突判定
         for bomb in bombs[:]:
             for beam in beams[:]:
                 if beam.rct.colliderect(bomb.rct):
+                    explosions.append(Explosion(bomb))
                     bombs.remove(bomb)
                     beams.remove(beam)
                     score.score += 1
-
-        # 爆弾リストを更新した後に、こうかとんと爆弾の衝突判定を行う
+                    
         for bomb in bombs:
             if bird.rct.colliderect(bomb.rct):
                 fonto = pg.font.Font(None, 80)
@@ -156,13 +167,16 @@ def main():
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         
-        # beamsリスト内のすべてのビームを更新・描画
         beams = [beam for beam in beams if check_bound(beam.rct) == (True, True)]
         for beam in beams:
             beam.update(screen)
             
         for bomb in bombs:
             bomb.update(screen)
+        
+        explosions = [explosion for explosion in explosions if explosion.life > 0]
+        for explosion in explosions:
+            explosion.update(screen)
 
         score.update(screen)
 
