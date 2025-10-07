@@ -130,8 +130,8 @@ def main():
     bird = Bird((300, 200))
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
 
-    beams = []
-    explosions = []
+    beams = [] #複数のビームを管理するための空のリストの初期化
+    explosions = [] #爆発エフェクトを管理するための空のリストの初期化
 
     score = Score()
 
